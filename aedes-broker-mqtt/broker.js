@@ -11,11 +11,13 @@ ws.createServer({ server: httpServer }, aedes.handle)
 
 httpServer.listen(wsPort, function () {
   console.log('websocket server listening on port ', wsPort)
+    console.log("hello world!")
 })
 
 // emitted when a client connects to the broker
 aedes.on('client', function (client) {
   console.log(`CLIENT_CONNECTED : MQTT Client ${(client ? client.id : client)} connected to aedes broker ${aedes.id}`)
+
 })
 
 // emitted when a client disconnects from the broker
