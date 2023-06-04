@@ -1,10 +1,9 @@
 #include "EspMQTTClient.h"
-//Install libraries PubSubClient and EspMQTTClient
-
+// Install libraries PubSubClient and EspMQTTClient
 
 void onConnectionEstablished();
 
-//Gamla sättet
+// Gamla sättet
 /*EspMQTTClient client(
  "Nätverksnamn",           // Wifi ssid
   "password",           // Wifi password
@@ -17,68 +16,65 @@ void onConnectionEstablished();
   true,             // Enable web updater
   true              // Enable debug messages
 );*/
-//Nya sättet!
+// Nya sättet!
 EspMQTTClient client(
- "Nätverksnamn",           // Wifi ssid
-  "password",           // Wifi password
-  "maqiatto.com",  // MQTT broker ip
-  "användarnamn på maqiatton",            // MQTT username
-  "password",       // MQTT password
-  "klientnamn",          // Client name
-  1883            // MQTT broker port
+    "AbbIndgym_2.4",  // Wifi ssid
+    "mitwifiarsabra", // Wifi password
+    "maqiatto.com",   // MQTT broker ip
+                      // MQTT password
+    "example",        // Client name
+    8882              // MQTT broker port
 );
- 
-//Extern lampa
-//#define led_pin D1
 
+// Extern lampa
+// #define led_pin D1
 
-void setup() {
-//pinMode(led_pin, OUTPUT);//Externlampa 
-//digitalWrite(led_pin,LOW);
-pinMode(LED_BUILTIN, OUTPUT); //Inbyggd lampa på kortet
-digitalWrite(LED_BUILTIN,LOW);
-Serial.begin(115200);
+void setup()
+{
+  // pinMode(led_pin, OUTPUT);//Externlampa
+  // digitalWrite(led_pin,LOW);
+  pinMode(LED_BUILTIN, OUTPUT); // Inbyggd lampa på kortet
+  digitalWrite(LED_BUILTIN, LOW);
+  Serial.begin(115200);
 }
 
-bool off=false;
+bool off = false;
 
-void lampa(){
-  if(off==true)
+void lampa()
+{
+  if (off == true)
   {
-  Serial.println("Släckt!");
-  off=false;
+    Serial.println("Släckt!");
+    off = false;
   }
   else
   {
-  off=true;
-  
-  Serial.println("Släckt!");
+    off = true;
+
+    Serial.println("Släckt!");
   }
 
-//digitalWrite(led_pin,off);//Externlampa
-digitalWrite(LED_BUILTIN,off);//Inbyggd lampa på kortet
-  
+  // digitalWrite(led_pin,off);//Externlampa
+  digitalWrite(LED_BUILTIN, off); // Inbyggd lampa på kortet
 }
 
 void onConnectionEstablished()
 {
-  client.subscribe("joakim.flink@abbindustrigymnasium.se/lampa", [] (const String &payload)
-  {
+  client.subscribe("joakim.flink@abbindustrigymnasium.se/lampa", [](const String &payload)
+                   {
     Serial.println(payload);
 //    if(payload=="on")
   //  onlampa();
-    lampa();
-  });
-  
+    lampa(); });
+
   client.publish("joakim.flink@abbindustrigymnasium.se/lampa", "This is a message");
 
-  client.executeDelayed(5 * 1000, []() {
-    client.publish("joakim.flink@abbindustrigymnasium.se/lampa", "This is a message sent 5 seconds later");
-  });
+  client.executeDelayed(5 * 1000, []()
+                        { client.publish("joakim.flink@abbindustrigymnasium.se/lampa", "This is a message sent 5 seconds later"); });
 }
 
-
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
-client.loop();
+  client.loop();
 }
