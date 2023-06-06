@@ -1,5 +1,5 @@
 const mqtt = require("mqtt");
-const client = mqtt.connect("mqtt://localhost:1882");
+const client = mqtt.connect("mqtt://localhost:1883");
 
 client.on("connect", function () {
   console.log("Connected to Aedes broker!");

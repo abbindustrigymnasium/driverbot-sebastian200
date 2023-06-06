@@ -54,32 +54,32 @@
             <div>
               <button
                 class="btn arrow-up-left q-ma-xs q-pa-lg"
-                @click="move(speed * 10, angle * 1.8)"
+                @click="move(speed * 10, angle * 1)"
               ></button>
               <button
                 class="btn arrow-up q-ma-xs q-pa-lg"
-                @click="move(speed, 0)"
+                @click="move(speed * 10, 0)"
               ></button>
               <button
                 class="btn arrow-up-right q-ma-xs q-pa-lg"
-                @click="move(speed * 10, -angle * 1.8)"
+                @click="move(speed * 10, -angle * 1)"
               ></button>
             </div>
             <div>
               <button
                 class="btn arrow-left q-ma-xs q-pa-lg"
-                @click="move(0, angle * 1.8)"
+                @click="move(0, angle * 1)"
               ></button>
               <button class="q-ma-xs q-pa-lg" @click="move(0, 0)"></button>
               <button
                 class="btn arrow-right q-ma-xs q-pa-lg"
-                @click="move(0, -angle * 1.8)"
+                @click="move(0, -angle * 1)"
               ></button>
             </div>
             <div>
               <button
                 class="btn arrow-down-left q-ma-xs q-pa-lg"
-                @click="move(speed * 10, angle * 1.8)"
+                @click="move(speed * 10, angle * 1)"
               ></button>
               <button
                 class="btn arrow-down q-ma-xs q-pa-lg"
@@ -87,7 +87,7 @@
               ></button>
               <button
                 class="btn arrow-down-right q-ma-xs q-pa-lg"
-                @click="move(-speed * 10, -angle * 1.8)"
+                @click="move(-speed * 10, -angle * 1)"
               ></button>
             </div>
           </div>
@@ -107,13 +107,33 @@
       </div>
     </div>
     <div flex>
-      <div class="sideInfo q-ma-xl">
-        <div class="q-ma-md">
+      <div class="q-ma-xl flex justify-around">
+        <div class="sideInfo q-ma-md">
           <q-scroll-area style="height: 600px; max-width: 450px">
             <h3 class="text-weight-bold text-center">Real Direction</h3>
             <ul>
               <div v-for="i in mqttDir.length" :key="i" class="q-py-xs text-center">
-                dir: {{ mqttDir[i] }}
+                angle: {{ mqttDir[i] }}
+              </div>
+            </ul>
+          </q-scroll-area>
+        </div>
+        <div class="sideInfo q-ma-md">
+          <q-scroll-area style="height: 600px; max-width: 450px">
+            <h3 class="text-weight-bold text-center">Conection</h3>
+            <ul>
+              <div v-for="i in mqttDir.length" :key="i" class="q-py-xs text-center">
+                {{ mqttCon[i] }}
+              </div>
+            </ul>
+          </q-scroll-area>
+        </div>
+        <div class="sideInfo q-ma-md">
+          <q-scroll-area style="height: 600px; max-width: 450px">
+            <h3 class="text-weight-bold text-center">Real Speed</h3>
+            <ul>
+              <div v-for="i in mqttDir.length" :key="i" class="q-py-xs text-center">
+                speed: {{ mqttSpd[i] }}
               </div>
             </ul>
           </q-scroll-area>
@@ -129,22 +149,35 @@ import { ref, onMounted } from "vue";
 let clientVal = "spd";
 let speed = 99;
 let angle = 50;
+let arSpeed = 0;
+let arAngle = 0;
 
 let n = 10;
+let mqttCon = [];
 let mqttSpd = [];
 let mqttDir = [];
+let mqttarSpd = [];
+let mqttarDir = [];
 let j = 0;
 let h = 0;
-
+let k = 0;
+let l = 0;
+let m = 0;
+console.log("conecting to aedes broker");
+mqttCon[0] = "conecting to aedes broker";
 //subcripes to to spd (spee) when client is connected
 client.on("connect", function () {
   console.log("Connected to Aedes broker!");
   client.subscribe(clientVal);
+  m += 1;
+  mqttCon[m] = "connected to aedes broker";
 });
 
 //when clent is running col the message that has ben recived
 client.on("message", function (topic, message) {
   console.log(`Received message on topic ${topic}: ${message.toString()}`);
+  m += 1;
+  mqttCon[m] = `Received message on topic ${topic}: ${message.toString()}`;
 
   // if we subscriped to speed that subsccribe to direction
   if (clientVal == "spd") {
@@ -152,11 +185,19 @@ client.on("message", function (topic, message) {
     console.log(mqttSpd);
     j += 1;
     clientVal = "dir";
-  } else {
+  } else if (clientVal == "dir") {
     mqttDir[h] = message.toString();
     console.log(mqttDir);
     h += 1;
+    clientVal = "arSpd";
+  } else if (clientVal == "arSpd") {
+    clientVal = "arDir";
+    mqttarDir[k] = message.toString();
+    k += 1;
+  } else if (clientVal == "arDir") {
     clientVal = "spd";
+    mqttarDir[l] = message.toString();
+    l += 1;
   }
 });
 
