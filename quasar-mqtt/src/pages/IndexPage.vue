@@ -180,21 +180,21 @@ client.on("message", function (topic, message) {
   mqttCon[m] = `Received message on topic ${topic}: ${message.toString()}`;
 
   // if we subscriped to speed that subsccribe to direction
-  if (clientVal == "spd") {
+  if (clientVal == "seb/spd") {
     mqttSpd[j] = message.toString();
     console.log(mqttSpd);
     j += 1;
     clientVal = "dir";
-  } else if (clientVal == "dir") {
+  } else if (clientVal == "seb/dir") {
     mqttDir[h] = message.toString();
     console.log(mqttDir);
     h += 1;
     clientVal = "arSpd";
-  } else if (clientVal == "arSpd") {
+  } else if (clientVal == "seb/arSpd") {
     clientVal = "arDir";
     mqttarDir[k] = message.toString();
     k += 1;
-  } else if (clientVal == "arDir") {
+  } else if (clientVal == "seb/arDir") {
     clientVal = "spd";
     mqttarDir[l] = message.toString();
     l += 1;
@@ -204,8 +204,8 @@ client.on("message", function (topic, message) {
 // debentent on witch button is pressed, and whitch speed and angle value is set, we send a speed and dircetion value to the broker
 function move(spd, dir) {
   console.log(dir, spd);
-  client.publish("spd", String(spd));
-  client.publish("dir", String(dir));
+  client.publish("seb/spd", String(spd));
+  client.publish("seb/dir", String(dir));
 }
 
 /*onMounted(() => {

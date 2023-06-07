@@ -1,16 +1,18 @@
 #include "EspMQTTClient.h"
-#include <Servo.h>
+#include <Servo.h> 
 
-int enA = D2;
-int in1 = D1;
-int in2 = D0;
+const byte mSpeed = 4;
+const byte mDir = 2;
 int spd;
 
 int dir;
 
+int pot = A0;
+int potval = 0;
+
 Servo servot;
-// hello
-//  Gamla sättet
+
+// Gamla sättet
 /*EspMQTTClient client(
  "Nätverksnamn",           // Wifi ssid
   "password",           // Wifi password
@@ -24,88 +26,86 @@ Servo servot;
   true              // Enable debug messages
 );*/
 // Nya sättet!
-// configuring mqtt client
+//configuring mqtt client
 EspMQTTClient client(
+    "ABBgym_2.4",
+    "mittwifiarsabra",
+    "aedes-broker.cloud.mustini.se",
+    "",
+    "",
+    "broker",
+    9696
+    );
 
-    "Almesbo_wifi",   // Wifi ssid
-    "KottenAlmesbo",  // Wifi password
-    "192.168.50.218", // MQTT broker ip
-    "ESP8266",        // Client name
-    1884);
+
+
 
 void setup()
 {
-  Serial.begin(9600);
+Serial.begin(9600);
 
-  servot.attach(D3, 544, 2400);
+ servot.attach(D3, 544, 2400);
 
   servot.write(90);
 
-  // Set all the motor control pins to outputs
-  pinMode(enA, OUTPUT);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
 
-  // Turn off motors - Initial state
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(enA, LOW);
+  pinMode(mDir, OUTPUT);
+  digitalWrite(mDir, HIGH);
+
 
   // Optional functionalities of EspMQTTClient
   client.enableDebuggingMessages(); // Enable debugging messages sent to serial output
 
-  client.enableLastWillMessage("TestClient/lastwill", "I am going offline"); // You can activate the retain flag by setting the third parameter to true
+  client.enableLastWillMessage("TestClient/lastwill", "I am going offline");  // You can activate the retain flag by setting the third parameter to true
+
 }
 
-void turn(int deg)
-{
-  servot.write(90 + deg);
+void turn(int deg) {
+  servot.write(90+deg);
 }
 
-void forwards(int spd)
-{
-  analogWrite(enA, spd);
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-}
-void backwrds(int spd)
-{
-  analogWrite(enA, spd);
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-}
 
-// when conected to the broker cleint subscribes to the topics dir and spd, and sends these values back to the broker in the arspeed and ardir topic
+void forwards(int spd) {
+    analogWrite(mSpeed, spd);
+    digitalWrite(mDir, HIGH);
+}
+void backwards (int spd) {
+    analogWrite(mSpeed, spd);
+    digitalWrite(mDir, LOW);
+}
+//when conected to the broker cleint subscribes to the topics dir and spd, and sends these values back to the broker in the arspeed and ardir topic
 void onConnectionEstablished()
 {
   Serial.println("conected");
-  client.subscribe("dir", [](const String &payload)
+  client.subscribe("seb/dir", [](const String &payload)
                    {
                      Serial.println(payload);
                      dir = payload.toInt();
-                     turn(dir); });
-  client.subscribe("spd", [](const String &payload)
+                     turn(dir);
+                   });
+  client.subscribe("seb/spd", [](const String &payload)
                    {
                      Serial.println(payload);
                      spd = payload.toInt();
-                     if (spd > 0)
-                     {
-                       forwards(spd);
+                     if (spd > 0) {
+                      forwards(spd);
                      }
-                     else
-                     {
-                       backwards(-spd);
-                     } });
+                     else {
+                      backwards(-spd);
+                     }
+                 
+                   });
 
-  client.publish("arSpd", "spd");
+  client.publish("seb/arSpd", "spd");
 
-  client.publish("arDir", "dir");
+  client.publish("seb/arDir", "dir");
 }
 
 void loop()
 {
   // put your main code here, to run repeatedly:
 
-  // loops the mqtt client
+  //loops the mqtt client
   client.loop();
+
 }
